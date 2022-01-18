@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {FC} from 'react';
 import {
   View,
   Text,
@@ -7,18 +7,20 @@ import {
   useWindowDimensions,
   Dimensions,
 } from 'react-native';
+import {Asset} from 'react-native-image-picker';
 
 const {width, height} = Dimensions.get('window');
 const imageWidth = width > height ? height : width;
 
-export const ImageItem = () => {
+export const ImageItem: FC<Asset> = props => {
   const imageSize = imageWidth / 4;
-
+  const {uri} = props;
+  
   return (
     <Image
       style={(styles.image, {width: imageSize, height: imageSize})}
       source={{
-        uri: 'https://images.unsplash.com/photo-1453728013993-6d66e9c9123a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Nnx8cGhvdG9ncmFwaGVyfGVufDB8fDB8fA%3D%3D&w=1000&q=80ß',
+        uri: `${uri}`,
       }}
     />
   );
