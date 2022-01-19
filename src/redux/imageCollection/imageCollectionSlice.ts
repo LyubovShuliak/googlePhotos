@@ -3,11 +3,22 @@ import {getImages} from './uploadImages';
 import {Asset} from 'react-native-image-picker';
 import {RootState} from '../store';
 
+export type Collection = Asset & {
+  isRemoving: boolean;
+};
 export interface Images {
-  collection: Asset[];
+  collection: Collection[];
+  imagesToDelete: Collection[];
   isLoading: boolean;
+  collectionIsEditing: boolean;
 }
-const initialState: Images = {collection: [], isLoading: false};
+
+const initialState: Images = {
+  collection: [],
+  imagesToDelete: [],
+  isLoading: false,
+  collectionIsEditing: false,
+};
 export const imageSlice = createSlice({
   name: 'imagesCollection',
   initialState,
@@ -17,6 +28,44 @@ export const imageSlice = createSlice({
         image => image.fileName !== action.payload,
       );
     },
+    chooseImagesToDelete(state, action: PayloadAction<Collection>) {
+      state.collection = state.collection.map(image => {
+        return {...image, isRemoving: true};
+      });
+      state.collectionIsEditing = true;
+      if (
+        state.imagesToDelete.find(
+          image => image.fileName === action.payload.fileName,
+        ) !== undefined
+      ) {
+        state.imagesToDelete = state.imagesToDelete.filter(
+          image => image.fileName !== action.payload.fileName,
+        );
+      } else {
+        state.imagesToDelete.push(action.payload);
+      }
+    },
+    discardChosenImages(state) {
+      state.collection = state.collection.map(image => {
+        return {...image, isRemoving: false};
+      });
+      state.collectionIsEditing = false;
+      state.imagesToDelete = [];
+    },
+    deleteChosenImages(state) {
+      state.collection = state.collection
+        .filter(
+          image =>
+            state.imagesToDelete.find(
+              imageToDelete => image.fileName === imageToDelete.fileName,
+            ) === undefined,
+        )
+        .map(image => {
+          return {...image, isRemoving: false};
+        });
+      state.collectionIsEditing = false;
+      state.imagesToDelete = [];
+    },
   },
   extraReducers: builder => {
     builder.addCase(getImages.pending, state => {
@@ -25,7 +74,12 @@ export const imageSlice = createSlice({
     builder.addCase(
       getImages.fulfilled,
       (state, action: PayloadAction<Asset[]>) => {
-        state.collection.push(...action.payload);
+        const newImages = action.payload.map(image => {
+          return {...image, isRemoving: false};
+        });
+
+        state.collection.push(...newImages);
+
         state.isLoading = false;
       },
     );
@@ -34,6 +88,13 @@ export const imageSlice = createSlice({
 
 export const imagesCollection = (state: RootState) => state.images.collection;
 export const loading = (state: RootState) => state.images.isLoading;
-
-export const {deleteImage} = imageSlice.actions;
+export const editCollection = (state: RootState) =>
+  state.images.collectionIsEditing;
+export const imagesToDelete = (state: RootState) => state.images.imagesToDelete;
+export const {
+  deleteImage,
+  chooseImagesToDelete,
+  discardChosenImages,
+  deleteChosenImages,
+} = imageSlice.actions;
 export const imageReducer = imageSlice.reducer;

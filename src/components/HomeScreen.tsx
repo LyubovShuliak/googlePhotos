@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -8,7 +10,14 @@ import {
 } from 'react-native';
 import {ImageList} from './ImageList';
 import {getImages, Params} from '../redux/imageCollection/uploadImages';
-import {useAppDispatch} from '../redux/hooks';
+import {useAppDispatch, useAppSelector} from '../redux/hooks';
+import {
+  deleteChosenImages,
+  discardChosenImages,
+  editCollection,
+  imagesToDelete,
+  loading,
+} from '../redux/imageCollection/imageCollectionSlice';
 
 const params: Params = {
   options: {
@@ -20,6 +29,9 @@ const params: Params = {
 
 export const HomeScreen = () => {
   const dispatch = useAppDispatch();
+  const chosenImages = useAppSelector(imagesToDelete);
+  const isEditing = useAppSelector(editCollection);
+  const isLoading = useAppSelector(loading);
 
   const uploadImages = () => {
     dispatch(getImages({...params, source: 'gallery'}));
@@ -28,19 +40,66 @@ export const HomeScreen = () => {
   const uploadFromCamera = () => {
     dispatch(getImages({...params, source: 'camera'}));
   };
-  return (
-    <SafeAreaView>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={uploadImages}>
-          <Text>Upload from gallery</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={uploadFromCamera}>
-          <Text>Upload from camera</Text>
-        </TouchableOpacity>
-      </View>
 
-      <ImageList />
-    </SafeAreaView>
+  const handleDelete = () => {
+    if (!chosenImages.length) {
+      Alert.alert('You`ve not chosen any image', 'Continue to delete images?', [
+        {
+          text: 'No',
+          onPress: () => {
+            dispatch(discardChosenImages());
+          },
+          style: 'cancel',
+        },
+        {text: 'Yes'},
+      ]);
+    } else {
+      dispatch(deleteChosenImages());
+    }
+  };
+  return (
+    <>
+      <SafeAreaView>
+        {!isEditing ? (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={uploadImages}>
+              <Text>Upload from gallery</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={uploadFromCamera}>
+              <Text>Upload from camera</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.button} onPress={handleDelete}>
+              <Text>Delete chosen images</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => dispatch(discardChosenImages())}>
+              <Text>Discard changes</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <ImageList />
+      </SafeAreaView>
+      {isLoading && (
+        <View
+          style={[
+            {
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,.3)',
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+          ]}>
+          <ActivityIndicator size="large" color="yellow" />
+        </View>
+      )}
+    </>
   );
 };
 const styles = StyleSheet.create({
@@ -48,10 +107,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    // padding: 10,
-    // alignItems: 'center',
-    // backgroundColor: 'red',
-    // width: 200,
   },
   button: {
     backgroundColor: 'lightgrey',

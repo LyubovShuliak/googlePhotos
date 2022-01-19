@@ -28,6 +28,7 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
         animationType="fade"
         transparent={false}
         visible={modalVisible}
+        supportedOrientations={['landscape', 'portrait']}
         onRequestClose={closeButton}>
         <SafeAreaView style={styles.centeredView}>
           <SafeAreaView style={styles.controlButtons}>
