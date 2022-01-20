@@ -5,12 +5,13 @@ import {
   Modal,
   View,
   Pressable,
-  Text,
   SafeAreaView,
 } from 'react-native';
 import {Asset} from 'react-native-image-picker';
 import {useAppDispatch} from '../redux/hooks';
 import {deleteImage} from '../redux/imageCollection/imageCollectionSlice';
+import ReturnButton from '../assets/images/return_to_main_screen.svg';
+import DeleteButton from '../assets/images/delete_button.svg';
 
 type ImageOnFullScreen = {
   image: Asset;
@@ -22,34 +23,39 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
   const {uri, fileName} = props.image;
   const {closeButton, modalVisible} = props;
   const dispatch = useAppDispatch();
+
+  const handleDelete = () => {
+    dispatch(deleteImage(fileName!!));
+  };
+
   return (
-    <View>
-      <Modal
-        animationType="fade"
-        transparent={false}
-        visible={modalVisible}
-        supportedOrientations={['landscape', 'portrait']}
-        onRequestClose={closeButton}>
+    <Modal
+      animationType="fade"
+      transparent={false}
+      visible={modalVisible}
+      supportedOrientations={['landscape', 'portrait']}
+      onRequestClose={closeButton}>
+      <View style={styles.background}>
         <SafeAreaView style={styles.centeredView}>
-          <SafeAreaView style={styles.controlButtons}>
-            <Pressable onPress={closeButton}>
-              <Text>Close</Text>
+          <View style={styles.controlButtons}>
+            <Pressable onPress={closeButton} hitSlop={20}>
+              <ReturnButton height={20} width={20} />
             </Pressable>
-            <Pressable onPress={() => dispatch(deleteImage(fileName!!))}>
-              <Text>Delete image</Text>
+            <Pressable onPress={handleDelete} hitSlop={20}>
+              <DeleteButton width={20} height={20} />
             </Pressable>
-          </SafeAreaView>
+          </View>
 
           <Image
             resizeMode="contain"
             style={styles.image}
             source={{
-              uri: `${uri}`,
+              uri,
             }}
           />
         </SafeAreaView>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -60,10 +66,15 @@ const styles = StyleSheet.create({
   },
   centeredView: {
     margin: 20,
+    backgroundColor: 'black',
   },
   controlButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     zIndex: 1,
+    color: 'white',
+  },
+  background: {
+    backgroundColor: 'black',
   },
 });

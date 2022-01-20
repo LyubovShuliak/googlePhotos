@@ -17,10 +17,11 @@ export const getImages = createAsyncThunk(
       params.source === 'gallery'
         ? await launchImageLibrary(params.options)
         : await launchCamera(params.options);
-    if (response.assets !== undefined) {
+
+    if (response.assets) {
       return response.assets;
-    } else {
-      return [];
     }
+
+    return [];
   },
 );

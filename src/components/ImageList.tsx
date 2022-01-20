@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, ScrollView, StyleSheet} from 'react-native';
+import {ScrollView, StyleSheet} from 'react-native';
 import {useAppSelector} from '../redux/hooks';
 import {imagesCollection} from '../redux/imageCollection/imageCollectionSlice';
 import {ImageItem} from './ImageItem';
@@ -8,26 +8,15 @@ export const ImageList = () => {
   const collection = useAppSelector(imagesCollection);
 
   return (
-    <View>
-      <ScrollView contentContainerStyle={styles.imageContainer}>
-        {collection.map(image => (
-          <ImageItem {...image} key={image.fileName} />
-        ))}
-      </ScrollView>
-    </View>
+    <ScrollView contentContainerStyle={styles.imageContainer}>
+      {collection.map(image => (
+        <ImageItem {...image} key={image.fileName} />
+      ))}
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  horizontal: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 10,
-  },
   imageContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

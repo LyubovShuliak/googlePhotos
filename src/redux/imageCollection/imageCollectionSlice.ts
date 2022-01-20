@@ -28,16 +28,22 @@ export const imageSlice = createSlice({
         image => image.fileName !== action.payload,
       );
     },
+
     chooseImagesToDelete(state, action: PayloadAction<Collection>) {
-      state.collection = state.collection.map(image => {
-        return {...image, isRemoving: true};
-      });
+      // adding choose circle on every image
+      state.collection = state.collection.map(image => ({
+        ...image,
+        isRemoving: true,
+      }));
+
       state.collectionIsEditing = true;
-      if (
-        state.imagesToDelete.find(
-          image => image.fileName === action.payload.fileName,
-        ) !== undefined
-      ) {
+
+      const shouldDelete = state.imagesToDelete.find(
+        image => image.fileName === action.payload.fileName,
+      );
+
+      // toggle checkmark in the circle
+      if (shouldDelete) {
         state.imagesToDelete = state.imagesToDelete.filter(
           image => image.fileName !== action.payload.fileName,
         );
@@ -45,13 +51,17 @@ export const imageSlice = createSlice({
         state.imagesToDelete.push(action.payload);
       }
     },
+
     discardChosenImages(state) {
-      state.collection = state.collection.map(image => {
-        return {...image, isRemoving: false};
-      });
+      state.collection = state.collection.map(image => ({
+        ...image,
+        isRemoving: false,
+      }));
+
       state.collectionIsEditing = false;
       state.imagesToDelete = [];
     },
+
     deleteChosenImages(state) {
       state.collection = state.collection
         .filter(
@@ -71,15 +81,16 @@ export const imageSlice = createSlice({
     builder.addCase(getImages.pending, state => {
       state.isLoading = true;
     });
+
     builder.addCase(
       getImages.fulfilled,
       (state, action: PayloadAction<Asset[]>) => {
-        const newImages = action.payload.map(image => {
-          return {...image, isRemoving: false};
-        });
+        const newImages = action.payload.map(image => ({
+          ...image,
+          isRemoving: false,
+        }));
 
         state.collection.push(...newImages);
-
         state.isLoading = false;
       },
     );
@@ -91,10 +102,12 @@ export const loading = (state: RootState) => state.images.isLoading;
 export const editCollection = (state: RootState) =>
   state.images.collectionIsEditing;
 export const imagesToDelete = (state: RootState) => state.images.imagesToDelete;
+
 export const {
   deleteImage,
   chooseImagesToDelete,
   discardChosenImages,
   deleteChosenImages,
 } = imageSlice.actions;
+
 export const imageReducer = imageSlice.reducer;
