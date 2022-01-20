@@ -12,4 +12,6 @@ It has next functions:
 
 ## Presentation
 
-## Usage
+Presentation on [IOS](https://drive.google.com/file/d/1l2nfXCu-mZBy2p_L5SDdbUmD5SfHFalN/view?usp=sharing)
+
+Presentation on [Android](https://drive.google.com/file/d/1us_SA_Kcph9XGHgeKpWiz0BDH6A_TtFg/view?usp=sharing)

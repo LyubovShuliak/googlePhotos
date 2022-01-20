@@ -1,5 +1,11 @@
 import React, {FC, useState} from 'react';
-import {Image, StyleSheet, Dimensions, Pressable, View} from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  Pressable,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import {useAppDispatch} from '../redux/hooks';
 import {
   chooseImagesToDelete,
@@ -8,13 +14,16 @@ import {
 import {FullScreenImage} from './FullScreenImage';
 
 import {CheckMark} from './CheckMark';
-const {width, height} = Dimensions.get('window');
-const imageWidth = width > height ? height : width;
 
 export const ImageItem: FC<Collection> = props => {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const imageSize = imageWidth / 4;
+  const {width, height} = useWindowDimensions();
+
+  const imageSizeForPortrait = Math.floor(width / 4);
+  const imageSizeForLandscape = Math.floor(width / 7);
+  console.log('imageSizeForLandscape: ', imageSizeForLandscape);
+
   const {uri, isRemoving} = props;
 
   const dispatch = useAppDispatch();
@@ -30,7 +39,13 @@ export const ImageItem: FC<Collection> = props => {
     isRemoving ? dispatch(chooseImagesToDelete(props)) : openFullScreenImage();
   return (
     <View
-      style={[styles.imageContainer, {width: imageSize, height: imageSize}]}>
+      style={[
+        styles.imageContainer,
+        {
+          width: width > height ? imageSizeForLandscape : imageSizeForPortrait,
+          height: width > height ? imageSizeForLandscape : imageSizeForPortrait,
+        },
+      ]}>
       <Pressable
         onPress={handleSelect}
         onLongPress={() => dispatch(chooseImagesToDelete(props))}>
