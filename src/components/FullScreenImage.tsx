@@ -1,17 +1,10 @@
-import React, {FC} from 'react';
-import {
-  Image,
-  StyleSheet,
-  Modal,
-  View,
-  Pressable,
-  SafeAreaView,
-} from 'react-native';
+import React, {FC, useState} from 'react';
+import {Image, StyleSheet, Modal, SafeAreaView, Pressable} from 'react-native';
 import {Asset} from 'react-native-image-picker';
 import {useAppDispatch} from '../redux/hooks';
 import {deleteImage} from '../redux/imageCollection/imageCollectionSlice';
-import ReturnButton from '../assets/images/return_to_main_screen.svg';
-import DeleteButton from '../assets/images/delete_button.svg';
+
+import {FullScreenHeader} from './FullScreenHeader';
 
 type ImageOnFullScreen = {
   image: Asset;
@@ -20,12 +13,18 @@ type ImageOnFullScreen = {
 };
 
 export const FullScreenImage: FC<ImageOnFullScreen> = props => {
+  const [controlBarVisibility, setControlBarVisibility] = useState(true);
+
   const {uri, fileName} = props.image;
   const {closeButton, modalVisible} = props;
   const dispatch = useAppDispatch();
 
   const handleDelete = () => {
     dispatch(deleteImage(fileName!!));
+  };
+
+  const showControlBar = () => {
+    setControlBarVisibility(!controlBarVisibility);
   };
 
   return (
@@ -35,16 +34,13 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
       visible={modalVisible}
       supportedOrientations={['landscape', 'portrait']}
       onRequestClose={closeButton}>
-      <View style={styles.background}>
+      <Pressable style={styles.background} onPress={showControlBar}>
         <SafeAreaView style={styles.centeredView}>
-          <View style={styles.controlButtons}>
-            <Pressable onPress={closeButton} hitSlop={20}>
-              <ReturnButton height={20} width={20} />
-            </Pressable>
-            <Pressable onPress={handleDelete} hitSlop={20}>
-              <DeleteButton width={20} height={20} />
-            </Pressable>
-          </View>
+          <FullScreenHeader
+            controlBarVisibility={controlBarVisibility}
+            handleDelete={handleDelete}
+            closeButton={closeButton}
+          />
 
           <Image
             resizeMode="contain"
@@ -54,7 +50,7 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
             }}
           />
         </SafeAreaView>
-      </View>
+      </Pressable>
     </Modal>
   );
 };
@@ -65,15 +61,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   centeredView: {
-    margin: 20,
+    // margin: 20,
     backgroundColor: 'black',
   },
-  controlButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    zIndex: 1,
-    color: 'white',
-  },
+
   background: {
     backgroundColor: 'black',
   },

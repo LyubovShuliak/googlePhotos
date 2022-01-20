@@ -22,7 +22,6 @@ export const ImageItem: FC<Collection> = props => {
 
   const imageSizeForPortrait = Math.floor(width / 4);
   const imageSizeForLandscape = Math.floor(width / 7);
-  console.log('imageSizeForLandscape: ', imageSizeForLandscape);
 
   const {uri, isRemoving} = props;
 
