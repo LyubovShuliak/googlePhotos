@@ -1,26 +1,25 @@
 import React, {FC, useState} from 'react';
-import {Image, StyleSheet, Modal, SafeAreaView, Pressable} from 'react-native';
-import {Asset} from 'react-native-image-picker';
+import {Image, StyleSheet, SafeAreaView, Pressable, View} from 'react-native';
 import {useAppDispatch} from '../redux/hooks';
 import {deleteImage} from '../redux/imageCollection/imageCollectionSlice';
 
-import {FullScreenHeader} from './FullScreenHeader';
+import {FullScreenHeader} from '../components/FullScreenHeader';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {FullScreenImageScreenRouteProp} from '../../App';
 
-type ImageOnFullScreen = {
-  image: Asset;
-  modalVisible: boolean;
-  closeButton: () => void;
-};
-
-export const FullScreenImage: FC<ImageOnFullScreen> = props => {
+export const FullScreenImage: FC = () => {
   const [controlBarVisibility, setControlBarVisibility] = useState(true);
+  const navigation = useNavigation();
+  const route = useRoute<FullScreenImageScreenRouteProp>();
 
-  const {uri, fileName} = props.image;
-  const {closeButton, modalVisible} = props;
+  const handleClose = () => {
+    navigation.goBack();
+  };
+  const {uri, fileName} = route.params.image;
   const dispatch = useAppDispatch();
-
   const handleDelete = () => {
     dispatch(deleteImage(fileName!!));
+    navigation.goBack();
   };
 
   const showControlBar = () => {
@@ -28,18 +27,13 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
   };
 
   return (
-    <Modal
-      animationType="fade"
-      transparent={false}
-      visible={modalVisible}
-      supportedOrientations={['landscape', 'portrait']}
-      onRequestClose={closeButton}>
+    <View style={styles.imageContainer}>
       <Pressable style={styles.background} onPress={showControlBar}>
         <SafeAreaView style={styles.centeredView}>
           <FullScreenHeader
             controlBarVisibility={controlBarVisibility}
             handleDelete={handleDelete}
-            closeButton={closeButton}
+            handleClose={handleClose}
           />
 
           <Image
@@ -51,17 +45,21 @@ export const FullScreenImage: FC<ImageOnFullScreen> = props => {
           />
         </SafeAreaView>
       </Pressable>
-    </Modal>
+    </View>
+    // </Modal>
   );
 };
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   image: {
     width: '100%',
     height: '100%',
   },
   centeredView: {
-    // margin: 20,
     backgroundColor: 'black',
   },
 

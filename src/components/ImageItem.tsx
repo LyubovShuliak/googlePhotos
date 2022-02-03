@@ -1,4 +1,7 @@
-import React, {FC, useState} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
+
+import React, {FC} from 'react';
 import {
   Image,
   StyleSheet,
@@ -11,13 +14,10 @@ import {
   chooseImagesToDelete,
   Collection,
 } from '../redux/imageCollection/imageCollectionSlice';
-import {FullScreenImage} from './FullScreenImage';
 
 import {CheckMark} from './CheckMark';
 
 export const ImageItem: FC<Collection> = props => {
-  const [modalVisible, setModalVisible] = useState(false);
-
   const {width, height} = useWindowDimensions();
 
   const imageSizeForPortrait = Math.floor(width / 4);
@@ -26,12 +26,15 @@ export const ImageItem: FC<Collection> = props => {
   const {uri, isRemoving} = props;
 
   const dispatch = useAppDispatch();
+  const navigation =
+    useNavigation<
+      StackNavigationProp<{FullScreenImage: {image: Collection}}>
+    >();
 
-  const closeButton = () => {
-    setModalVisible(false);
-  };
   const openFullScreenImage = () => {
-    setModalVisible(true);
+    navigation.navigate('FullScreenImage', {
+      image: props,
+    });
   };
 
   const handleSelect = () =>
@@ -58,13 +61,6 @@ export const ImageItem: FC<Collection> = props => {
           />
         </View>
       </Pressable>
-      {modalVisible ? (
-        <FullScreenImage
-          closeButton={closeButton}
-          modalVisible={modalVisible}
-          image={props}
-        />
-      ) : null}
     </View>
   );
 };

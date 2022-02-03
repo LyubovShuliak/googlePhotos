@@ -11,12 +11,12 @@ import ReturnButton from '../assets/images/return_to_main_screen.svg';
 import DeleteButton from '../assets/images/delete_button.svg';
 
 type Header = {
-  closeButton: () => void;
+  handleClose: () => void;
   handleDelete: () => void;
   controlBarVisibility: boolean;
 };
 export const FullScreenHeader: FC<Header> = ({
-  closeButton,
+  handleClose,
   handleDelete,
   controlBarVisibility,
 }) => {
@@ -29,10 +29,6 @@ export const FullScreenHeader: FC<Header> = ({
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
-
-  //   useEffect(() => {
-  //     fadeIn();
-  //   }, [fadeIn]);
 
   const fadeOut = useCallback(() => {
     Animated.timing(fadeAnim, {
@@ -51,7 +47,7 @@ export const FullScreenHeader: FC<Header> = ({
   }, [controlBarVisibility, fadeIn, fadeOut]);
 
   return (
-    <SafeAreaView style={{zIndex: 1}}>
+    <SafeAreaView style={styles.buttonsContainer}>
       <Animated.View
         style={[
           styles.controlButtons,
@@ -64,7 +60,7 @@ export const FullScreenHeader: FC<Header> = ({
             transform: [{translateY: fadeAnim}],
           },
         ]}>
-        <Pressable onPress={closeButton} hitSlop={20}>
+        <Pressable onPress={handleClose} hitSlop={20}>
           <ReturnButton height={20} width={20} />
         </Pressable>
         <Pressable onPress={handleDelete} hitSlop={20}>
@@ -76,6 +72,7 @@ export const FullScreenHeader: FC<Header> = ({
 };
 
 const styles = StyleSheet.create({
+  buttonsContainer: {zIndex: 1},
   controlButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -84,6 +81,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     position: 'absolute',
     width: '100%',
-    // marginHorizontal: 10,
   },
 });
